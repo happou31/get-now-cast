@@ -9,12 +9,6 @@ const imageBasePixel = 256;
 
 const mapIds = ["35_29", "36_29", "37_29", "35_30", "36_30", "37_30"];
 
-// 雨雲の画像
-const mapRaderUrls = mapIds.map(
-  id =>
-    `https://www.jma.go.jp/jp/highresorad/highresorad_tile/HRKSNC/201908160830/201908160830/zoom5/33_29.png`
-);
-
 export default async function getNowCast(date: Date) {
   const dateStr = dateStrRound(new Date(date.getTime() - 5 * 60 * 1000));
 

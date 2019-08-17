@@ -104,8 +104,6 @@ async function readCacheOrFetch(path: string, url: string) {
 }
 
 function dateStrRound(date: Date): string {
-  date.getTimezoneOffset();
-
   const utcDate = new Date(
     date.getTime() + date.getTimezoneOffset() * 60 * 1000
   );

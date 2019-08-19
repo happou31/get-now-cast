@@ -12,39 +12,43 @@ const mapIds = ["35_29", "36_29", "37_29", "35_30", "36_30", "37_30"];
 export default async function getNowCast(date: Date) {
   const dateStr = dateStrRound(new Date(date.getTime() - 5 * 60 * 1000));
 
-  // 県境の画像
-  const masks = await Promise.all(
-    mapIds.map(
-      async id =>
-        await readCacheOrFetch(
-          `.cache/mask_${id}.png`,
-          `https://www.jma.go.jp/jp/commonmesh/map_tile/MAP_MASK/none/none/zoom6/${id}.png`
-        )
-    )
-  );
-
-  // 地形の画像
-  const colors = await Promise.all(
-    mapIds.map(
-      async id =>
-        await readCacheOrFetch(
-          `.cache/color_${id}.png`,
-          `https://www.jma.go.jp/jp/commonmesh/map_tile/MAP_COLOR/none/anal/zoom6/${id}.png`
-        )
-    )
-  );
-
-  // 雨雲の画像
-  const rains = await Promise.all(
-    mapIds.map(
-      async id =>
-        await (await fetch(
-          `https://www.jma.go.jp/jp/highresorad/highresorad_tile/HRKSNC/${dateStr}/${dateStr}/zoom6/${id}.png`
-        )).buffer()
-    )
-  );
-
   try {
+    const image = await readAsync(`.cache/dist_${dateStr}.png`);
+
+    return image;
+  } catch (e) {
+    // 県境の画像
+    const masks = await Promise.all(
+      mapIds.map(
+        async id =>
+          await readCacheOrFetch(
+            `.cache/mask_${id}.png`,
+            `https://www.jma.go.jp/jp/commonmesh/map_tile/MAP_MASK/none/none/zoom6/${id}.png`
+          )
+      )
+    );
+
+    // 地形の画像
+    const colors = await Promise.all(
+      mapIds.map(
+        async id =>
+          await readCacheOrFetch(
+            `.cache/color_${id}.png`,
+            `https://www.jma.go.jp/jp/commonmesh/map_tile/MAP_COLOR/none/anal/zoom6/${id}.png`
+          )
+      )
+    );
+
+    // 雨雲の画像
+    const rains = await Promise.all(
+      mapIds.map(
+        async id =>
+          await (await fetch(
+            `https://www.jma.go.jp/jp/highresorad/highresorad_tile/HRKSNC/${dateStr}/${dateStr}/zoom6/${id}.png`
+          )).buffer()
+      )
+    );
+
     // なんか sharp#composite は配列を一気に渡さないと狙った画像を出力してくれないのでこうする
     const composites: ({
       input: string | Buffer;
@@ -69,7 +73,7 @@ export default async function getNowCast(date: Date) {
       }
     }
 
-    return sharp({
+    const s = await sharp({
       create: {
         width: 256 * tileWidth,
         height: 256 * tileHeight,
@@ -84,10 +88,10 @@ export default async function getNowCast(date: Date) {
       .composite(composites)
       .png()
       .toBuffer();
-  } catch (e) {
-    console.error(e);
 
-    return undefined;
+    await writeAsync(`.cache/dist_${dateStr}.png`, s);
+
+    return s;
   }
 }
 

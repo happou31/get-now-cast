@@ -61,12 +61,12 @@ export default async function getNowCast(date: Date) {
           top: y * imageBasePixel
         });
         composites.push({
-          input: masks[y * tileWidth + x],
+          input: rains[y * tileWidth + x],
           left: x * imageBasePixel,
           top: y * imageBasePixel
         });
         composites.push({
-          input: rains[y * tileWidth + x],
+          input: masks[y * tileWidth + x],
           left: x * imageBasePixel,
           top: y * imageBasePixel
         });
